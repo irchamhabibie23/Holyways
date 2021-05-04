@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "title": "The Strength of a People. Power of Community",
+    "img": "/catalog1.svg",
+    "donate": "25000000",
+    "goals": "200000000"
+  },{
+    "id": 3,
+    "title": "Please Our Brothers in Flores",
+    "img": "/catalog3.svg",
+    "progres": "74",
+    "donate": "100000000",
+    "goals": "120000000"
+  }
+] 
