@@ -1,44 +1,62 @@
 import { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import {
-  Container,
-  Col,
-  Row,
-  Button,
-  Image,
-  Card,
-  ProgressBar,
-} from "react-bootstrap";
+import { io } from "socket.io-client";
+import { Container, Row, Button, Card } from "react-bootstrap";
 
 import { API } from "../config/api";
 
 import DetailDonate from "../components/DetailDonate";
 import { convertToRupiah } from "../utils";
 import { UserContext } from "../contexts/userContext";
+import LoadingPage from "./LoadingPage";
+
+let socket;
 
 const ViewFund = () => {
   const [state, dispatch] = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
   const [viewmyfunds, setViewMyFunds] = useState([]);
   const params = useParams();
   const { id } = params;
 
-  const loadTodos = async () => {
+  const loadFunds = async () => {
     try {
       const response = await API.get(`/fund/${id}`);
       setViewMyFunds(response.data.data.funds[0]);
     } catch (error) {
       console.log(error);
-      setIsError(true);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    loadTodos();
-  }, []);
+    loadFunds();
+  }, [state.isVisibleApprove]);
+
+  // const loadFund = async (socket) => {
+  //   await socket.emit("load fund");
+  //   console.log("Test");
+  //   await socket.on("fund", (todo) => {
+  //     setViewMyFunds(todo.data);
+  //     setIsLoading(false);
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   socket = io("http://localhost:5000/fund", {
+  //     auth: {
+  //       token: localStorage.getItem("token"),
+  //       id: id,
+  //     },
+  //   });
+
+  //   loadFund(socket);
+  //   return () => {
+  //     socket.disconnect();
+  //     console.log(socket);
+  //   };
+  // }, []);
 
   const handleApproveModalBuka = (approveModal, id) => {
     dispatch({
@@ -47,13 +65,6 @@ const ViewFund = () => {
         approveModal,
         id,
       },
-    });
-  };
-
-  const handleDonateModalBuka = () => {
-    dispatch({
-      type: "DONATEMODALBUKA",
-      payload: id,
     });
   };
 
@@ -68,7 +79,7 @@ const ViewFund = () => {
   return (
     <Container style={{ marginTop: "79px" }}>
       {isLoading === true ? (
-        <div>Loading</div>
+        <LoadingPage />
       ) : (
         <>
           <Container style={{ marginTop: "79px" }}>
@@ -96,6 +107,28 @@ const ViewFund = () => {
           overflow: "scroll",
         }}>
         {pendingDonation?.map((approve) => (
+          // <Card style={{ width: "auto", marginBottom: "10px" }}>
+          //   <Card.Body
+          //     style={{
+          //       marginLeft: "16px",
+          //       marginTop: "15px",
+          //       marginBottom: "20px",
+          //     }}>
+          //     <Card.Title>{approve.fullname}</Card.Title>
+          //     <Card.Text className='d-flex justify-content-between'>
+          //       <Card.Subtitle className='mb-2 text-muted'>
+          //         {approve.updatedAt}
+          //       </Card.Subtitle>
+          //       <Button
+          //         onClick={() => handleApproveModalBuka([approve], id)}
+          //         style={{ marginRight: "34px", width: "100px" }}>
+          //         View
+          //       </Button>
+          //     </Card.Text>
+          //     <Card.Text>Total : {convertToRupiah(approve.amount)}</Card.Text>
+          //   </Card.Body>
+          // </Card>
+
           <Card style={{ width: "auto", marginBottom: "10px" }}>
             <Card.Body
               style={{
@@ -103,18 +136,27 @@ const ViewFund = () => {
                 marginTop: "15px",
                 marginBottom: "20px",
               }}>
-              <Card.Title>{approve.fullname}</Card.Title>
-              <Card.Text className='d-flex justify-content-between'>
-                <Card.Subtitle className='mb-2 text-muted'>
+              <Card.Title className='mb-4 b font-weight-bold'>
+                {approve.fullname}
+              </Card.Title>
+              <Card.Text className='mb-0 d-flex justify-content-between'>
+                <Card.Subtitle className='mb-4 text-muted'>
                   {approve.updatedAt}
                 </Card.Subtitle>
                 <Button
-                  onClick={() => handleApproveModalBuka(approve, id)}
+                  onClick={() => handleApproveModalBuka([approve], id)}
                   style={{ marginRight: "34px", width: "100px" }}>
                   View
                 </Button>
               </Card.Text>
-              <Card.Text>Total : {convertToRupiah(approve.amount)}</Card.Text>
+              <Card.Text
+                style={{
+                  color: "rgba(151, 74, 74, 1)",
+                  fontWeight: "bold",
+                }}
+                className='mb-0 font-weight-bold'>
+                Total : {convertToRupiah(approve.amount)}
+              </Card.Text>
             </Card.Body>
           </Card>
         ))}

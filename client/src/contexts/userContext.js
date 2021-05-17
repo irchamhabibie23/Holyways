@@ -1,5 +1,4 @@
 import { createContext, useReducer } from "react";
-import { API } from "../config/api";
 export const UserContext = createContext();
 
 const initialState = {
@@ -7,19 +6,21 @@ const initialState = {
   user: null,
   isVisibleLogin: false,
   isVisibleRegister: false,
+  isVisibleEditProfile: false,
   isVisibleDonate: false,
   isVisibleApprove: false,
   modalDonateId: null,
+  editIsPressed: 0,
   approveListModal: [],
+  editProfileModal: [],
   kocamtesting: [],
 };
 
 const reducer = (state, action) => {
   const { type, payload } = action;
   switch (type) {
-    case "LOAD":
-      const kocam = API.get(`/funds`);
-      return { ...state, kocamtesting: kocam };
+    case "ISPRESSED":
+      return { ...state, editIsPressed: state.editIsPressed + 1 };
     case "USER_SUCCESS":
     case "LOGIN_SUCCESS":
       localStorage.setItem("token", payload.token);
@@ -38,6 +39,19 @@ const reducer = (state, action) => {
         isLogin: false,
         user: null,
       };
+    case "EDITPROFILEBUKA":
+      return {
+        ...state,
+        isVisibleEditProfile: true,
+        editProfileModal: payload,
+      };
+    case "EDITPROFILETUTUP":
+      return {
+        ...state,
+        isVisibleEditProfile: false,
+        editProfileModal: [],
+      };
+
     case "LOGINMODALBUKA":
       return {
         ...state,
@@ -74,12 +88,7 @@ const reducer = (state, action) => {
         ...state,
         isVisibleApprove: true,
         fundID: payload.id,
-        approveListModal: [
-          ...state.approveListModal,
-          {
-            ...payload.approveModal,
-          },
-        ],
+        approveListModal: payload.approveModal,
       };
     case "APPROVEMODALTUTUP":
       return {

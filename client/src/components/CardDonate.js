@@ -1,6 +1,6 @@
 import { useHistory } from "react-router-dom";
 import { useContext } from "react";
-import { Card, Button, ProgressBar, Row, Container } from "react-bootstrap";
+import { Card, Button, ProgressBar, Container } from "react-bootstrap";
 
 import { UserContext } from "../contexts/userContext";
 import { convertToRupiah } from "../utils";
@@ -34,7 +34,7 @@ const CardDonate = ({ donateList, tes }) => {
 
   return (
     <Card className='kartu' style={{ width: "18rem", height: "26rem" }}>
-      {tes == "viewFund" ? (
+      {tes === "viewFund" ? (
         <Card.Img
           style={{ cursor: "pointer", width: "288", height: "218px" }}
           onClick={goToViewFund}
@@ -88,7 +88,7 @@ const CardDonate = ({ donateList, tes }) => {
             <div className='dana'>
               {!totaldonation ? "Rp. 0" : convertToRupiah(totaldonation)}
             </div>
-            {tes == "viewFund" ? (
+            {tes === "viewFund" ? (
               <Button onClick={goToViewFund} size='sm'>
                 View Fund
               </Button>

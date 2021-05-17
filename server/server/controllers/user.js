@@ -302,6 +302,75 @@ exports.getProfile = async (req, res) => {
             ],
           ],
         },
+        // {
+        //   model: Campaigns,
+        //   as: "myfundlist",
+        //   attributes: [
+        //     "id",
+        //     "title",
+        //     "description",
+        //     "thumbnail",
+        //     "goals",
+        //     [
+        //       literal(`(
+        //         SELECT SUM(amount) FROM Donations
+        //         WHERE Donations.CampaignId=myfundlist.id
+        //         AND Donations.status="Finished"
+        //       )`),
+        //       "totaldonation",
+        //     ],
+        //   ],
+        // },
+      ],
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "password"],
+      },
+    });
+
+    if (!profile) {
+      return res.send({
+        status: "failed",
+        message: "User data not found",
+      });
+    }
+
+    const parseJSON = JSON.parse(JSON.stringify(profile));
+    // const test = JSON.parse(JSON.stringify(profile.myfundlist));
+    // datamyfunds = test.map((item) => {
+    //   return {
+    //     ...item,
+    //     thumbnail: path + item.thumbnail,
+    //   };
+    // });
+    data = [parseJSON].map((item) => {
+      return {
+        ...item,
+        // myfundlist: datamyfunds,
+        thumbnail: path + item.thumbnail,
+      };
+    });
+
+    res.send({
+      status: "succes",
+      data: {
+        profile: data,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      status: "failed",
+      message: "server error",
+    });
+  }
+};
+
+exports.getMyFunds = async (req, res) => {
+  try {
+    const id = req.userId;
+    const profile = await User.findOne({
+      where: { id },
+      include: [
         {
           model: Campaigns,
           as: "myfundlist",
@@ -314,7 +383,7 @@ exports.getProfile = async (req, res) => {
             [
               literal(`(
                 SELECT SUM(amount) FROM Donations
-                WHERE Donations.CampaignId=myfundlist.id 
+                WHERE Donations.CampaignId=myfundlist.id
                 AND Donations.status="Finished"
               )`),
               "totaldonation",
@@ -323,7 +392,16 @@ exports.getProfile = async (req, res) => {
         },
       ],
       attributes: {
-        exclude: ["createdAt", "updatedAt", "password"],
+        exclude: [
+          "createdAt",
+          "updatedAt",
+          "password",
+          "id",
+          "fullname",
+          "email",
+          "phone",
+          "thumbnail",
+        ],
       },
     });
 
@@ -346,7 +424,6 @@ exports.getProfile = async (req, res) => {
       return {
         ...item,
         myfundlist: datamyfunds,
-        thumbnail: path + item.thumbnail,
       };
     });
 
@@ -368,35 +445,64 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const id = req.userId;
-    const campaign = await User.findOne({
+    const profile = await User.findOne({
       where: { id },
       attributes: {
         exclude: ["createdAt", "updatedAt"],
       },
     });
 
-    if (!campaign) {
+    if (!profile) {
       return res.send({
         status: "failed",
         message: "User data not found",
       });
     }
 
-    const thumbnail = req.files.imageFile[0].filename;
-    const path = process.env.PATH;
+    if (req.files.imageFile) {
+      const thumbnail = req.files.imageFile[0].filename;
+      const updateData = { ...req.body, thumbnail };
+      await User.update(updateData, {
+        where: { id },
+      });
+      res.send({
+        status: "succes",
+        data: {
+          ...updateData,
+        },
+      });
+    } else {
+      if (!req.body) {
+        return res.send({
+          status: "No change",
+        });
+      }
+      if (req.body.email) {
+        const isRegistered = await User.findOne({
+          where: { email: req.body.email },
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        });
+        if (isRegistered) {
+          return res.send({
+            status: "Failed",
+            message: "Email has been registered. Choose another email",
+          });
+        }
+      }
 
-    const updateData = { ...req.body, thumbnail };
-
-    await User.update(updateData, {
-      where: { id },
-    });
-    res.send({
-      status: "succes",
-      data: {
-        ...updateData,
-        thumbnail: path + image,
-      },
-    });
+      const updateData = { ...req.body };
+      await User.update(updateData, {
+        where: { id },
+      });
+      res.send({
+        status: "succes",
+        data: {
+          ...updateData,
+        },
+      });
+    }
   } catch (err) {
     console.log(err);
     res.send({

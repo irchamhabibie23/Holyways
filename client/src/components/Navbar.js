@@ -9,6 +9,7 @@ import ModalApprove from "./ModalApprove";
 import ModalDonate from "./ModalDonate";
 import ModalLogin from "./ModalLogin";
 import ModalRegister from "./ModalRegister";
+import ModalEditProfile from "./ModalEditProfile";
 
 const NavbarComponent = () => {
   const [state, dispatch] = useContext(UserContext);
@@ -49,6 +50,7 @@ const NavbarComponent = () => {
 
       <ModalLogin />
       <ModalRegister />
+      <ModalEditProfile />
       <ModalDonate />
       <ModalApprove />
     </>

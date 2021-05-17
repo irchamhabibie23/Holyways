@@ -1,6 +1,4 @@
 const express = require("express");
-
-const jwt = require("express-jwt");
 const { auth } = require("../middlewares/auth");
 const { uploadFile } = require("../middlewares/uploadFile");
 const router = express.Router();
@@ -13,6 +11,7 @@ const {
   checkAuth,
   getProfile,
   updateProfile,
+  getMyFunds,
 } = require("../controllers/user");
 const {
   createCampaign,
@@ -33,7 +32,8 @@ router.get("/check-auth", auth, checkAuth);
 router.post("/register", createUser);
 router.get("/users", readUsers);
 router.get("/profile", auth, getProfile);
-router.patch("/updateprofile", auth, uploadFile("imageFile"), updateProfile);
+router.get("/getmyfunds", auth, getMyFunds);
+router.patch("/update", auth, uploadFile("imageFile"), updateProfile);
 router.delete("/user/:id", auth, deleteUser);
 
 router.post("/fund", auth, uploadFile("imageFile"), createCampaign);

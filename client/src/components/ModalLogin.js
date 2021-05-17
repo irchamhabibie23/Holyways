@@ -40,6 +40,7 @@ const ModalLogin = () => {
         type: "LOGIN_SUCCESS",
         payload: response.data.data.user,
       });
+
       setForm(initialState);
     } catch (error) {
       console.log(error);

@@ -1,17 +1,34 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { NavDropdown, Col, Row, Image } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { useQuery } from "react-query";
 
 import { API } from "../config/api";
 import { UserContext } from "../contexts/userContext";
 
 const DropdownProfile = () => {
-  let { data: navbar } = useQuery("navbar", async () => {
-    const response = await API.get("/profile");
-    return response.data.data.profile[0];
-  });
+  const [navbar, setNavbar] = useState([]);
+  const [state] = useContext(UserContext);
+
+  const loadRaiseFund = async () => {
+    try {
+      const response = await API.get(`/profile`);
+      setNavbar(response.data.data.profile[0]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    setTimeout(() => {
+      loadRaiseFund();
+    }, 500);
+  }, [state.editIsPressed]);
+  // let { data: navbar } = useQuery("navbar", async () => {
+  //   const response = await API.get("/profile");
+  //   return response.data.data.profile[0];
+  // });
+
   const [, dispatch] = useContext(UserContext);
+
   const handleLogOut = () => {
     dispatch({
       type: "LOGOUT",
@@ -19,7 +36,6 @@ const DropdownProfile = () => {
   };
   return (
     <NavDropdown
-      eventKey={1}
       title={
         <div className='pull-left'>
           <Image className='navbar-img' src={navbar?.thumbnail} roundedCircle />
@@ -60,7 +76,7 @@ const DropdownProfile = () => {
           </Col>
         </Row>
       </NavDropdown.Item>
-      <hr class='solid'></hr>
+      <hr className='solid'></hr>
       <NavDropdown.Item
         style={{ padding: " 0.7rem 1.5rem" }}
         onClick={() => handleLogOut()}

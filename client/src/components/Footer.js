@@ -3,12 +3,11 @@ import { Container, Row, Col, Spinner } from "react-bootstrap";
 
 import { API } from "../config/api";
 import CardDonate from "../components/CardDonate";
-import { UserContext } from "../contexts/userContext";
 
 const Footer = () => {
   const [funds, setFunds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+  const [, setIsError] = useState(false);
 
   const loadTodos = async () => {
     setIsError(false);

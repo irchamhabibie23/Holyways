@@ -264,3 +264,94 @@ exports.deleteCampaign = async (req, res) => {
     });
   }
 };
+
+exports.socketGetCampaign = async (id) => {
+  try {
+    console.log("test");
+    let detailCampaign = await Campaigns.findOne({
+      where: { id },
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+      include: [
+        {
+          model: Donation,
+          as: "donationList",
+          attributes: [
+            "id",
+            [
+              literal(`(
+              SELECT user.fullName
+              FROM users AS user
+              WHERE user.id = donationList.UserId
+            )`),
+              "fullname",
+            ],
+            [
+              literal(`(
+              SELECT user.email
+              FROM users AS user
+              WHERE user.id = donationList.UserId
+            )`),
+              "email",
+            ],
+            "amount",
+            [
+              sequelize.fn(
+                "date_format",
+                sequelize.col("donationList.updatedAt"),
+                "%W, %d %M %Y"
+              ),
+              "updatedAt",
+            ],
+            "status",
+            "proof",
+          ],
+        },
+      ],
+      attributes: [
+        "id",
+        "title",
+        "description",
+        "thumbnail",
+        "goals",
+        [
+          literal(`(
+            SELECT SUM(amount) FROM Donations
+            WHERE Donations.CampaignId=Campaigns.id 
+            AND Donations.status="Finished"
+          )`),
+          "totaldonation",
+        ],
+      ],
+    });
+    const parseJSON = JSON.parse(JSON.stringify(detailCampaign));
+    const test = JSON.parse(JSON.stringify(detailCampaign.donationList));
+
+    datadonation = test.map((item) => {
+      return {
+        ...item,
+        proof: path + item.proof,
+      };
+    });
+    data = [parseJSON].map((item) => {
+      return {
+        ...item,
+        donationList: datadonation,
+        thumbnail: path + item.thumbnail,
+      };
+    });
+    res.send({
+      status: "success",
+      data: {
+        funds: data,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: "failed",
+      message: "server error",
+    });
+  }
+};

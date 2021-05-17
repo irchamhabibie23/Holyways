@@ -2,7 +2,7 @@ import { Container, Row, Card, Image, Button } from "react-bootstrap";
 
 const Hero = () => {
   return (
-    <Container fluid className='hero-container'>
+    <Container fluid className='hero-container zindex'>
       <Row className='d-flex justify-content-between'>
         <Card
           className='bg-transparent border-0 mt-5'

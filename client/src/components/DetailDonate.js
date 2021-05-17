@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext } from "react";
 import { useParams } from "react-router-dom";
 import { Col, Row, Button, Image, Card, ProgressBar } from "react-bootstrap";
 
@@ -8,11 +8,7 @@ import { convertToRupiah } from "../utils";
 const DetailDonate = ({ detailDonate, approvedDonation }) => {
   const { title, thumbnail, totaldonation, goals, description } = detailDonate;
 
-  const { fullname, amount, updatedAt } = approvedDonation;
-
-  const [state, dispatch] = useContext(UserContext);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+  const [, dispatch] = useContext(UserContext);
   const params = useParams();
   const { id } = params;
   const handleDonateModalBuka = () => {
@@ -35,8 +31,8 @@ const DetailDonate = ({ detailDonate, approvedDonation }) => {
         <Col style={{ marginLeft: "84px" }}>
           <Card
             style={{
-              maxWidth: "427px",
-              maxHeight: "433px",
+              maxWidth: "30rem",
+              maxHeight: "30rem",
               backgroundColor: "transparent",
               border: "none",
             }}>

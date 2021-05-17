@@ -1,30 +1,18 @@
-import { useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import {
-  Container,
-  Col,
-  Row,
-  Button,
-  Image,
-  Card,
-  ProgressBar,
-} from "react-bootstrap";
+import { Container } from "react-bootstrap";
 
 import { API } from "../config/api";
 import DetailDonate from "../components/DetailDonate";
 
-import { UserContext } from "../contexts/userContext";
-import { convertToRupiah } from "../utils";
-
 const Detaildonate = () => {
   const [detailDonate, setDetailDonate] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [, dispatch] = useContext(UserContext);
+  const [, setIsError] = useState(false);
   const params = useParams();
   const { id } = params;
 
-  const loadTodos = async () => {
+  const loadDonate = async () => {
     try {
       const response = await API.get(`/fund/${id}`);
       setDetailDonate(response.data.data.funds[0]);
@@ -36,15 +24,9 @@ const Detaildonate = () => {
     }
   };
   useEffect(() => {
-    loadTodos();
+    loadDonate();
   }, []);
 
-  const handleDonateModalBuka = () => {
-    dispatch({
-      type: "DONATEMODALBUKA",
-      payload: id,
-    });
-  };
   const approvedDonation = detailDonate?.donationList?.filter(
     (donatur) => donatur.status !== "Pending"
   );
